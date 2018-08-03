@@ -1,0 +1,12 @@
+<%= bootstrap_form_for(@organizador, url: organizadores_path(@organizador)) do |organizador| %>
+  <p>Os campos marcados com * são obrigatórios.</p>
+  <%= organizador.fields_for :usuario do |usuario| %>
+    <%= usuario.text_field :nome, label: 'Nome *' %>
+    <%= usuario.email_field :email, label: 'E-mail *' %>
+    <%= usuario.password_field :password, label: 'Senha *' %>
+    <%= usuario.password_field :password_confirmation, label: 'Confirmação de senha *' %>
+    <%= usuario.select :perfil_id, Perfil.select, label: 'Perfil *' %>
+  <% end %>
+  <%= organizador.text_field :atuacao, label: 'Atuação' %>
+  <%= organizador.submit 'Enviar' %>
+<% end %>

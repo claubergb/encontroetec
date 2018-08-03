@@ -1,0 +1,98 @@
+<%= content_for :head do %>
+  <script type="text/javascript">
+    function aprovar_nota_empenho() {
+      if(confirm("Tem certeza que deseja aprovar o pagamento por nota de empenho?")) {
+        redirect("<%= admin_participante_aprovar_nota_empenho_path(@participante) %>");
+      }
+    }
+
+    function avaliar_isencao(avaliacao) {
+      if(confirm("Tem certeza que deseja avaliar a isenção da taxa de inscrição?")) {
+        redirect("<%= admin_participante_avaliar_isencao_path(@participante) %>?avaliacao="+avaliacao);
+      }
+    }
+
+    function aprovar_pagamento() {
+      if(confirm("Tem certeza que deseja aprovar o pagamento?")) {
+        redirect("<%= admin_participante_aprovar_pagamento_path(@participante) %>");
+      }
+    }
+  </script>
+<% end %>
+
+<div class="row">
+  <div class="col-md-6">
+    <h1><%= fa_icon 'eye' %> Detalhar Participante</h1>
+  </div>
+  <div class="col-md-6">
+    <div class="btn-group pull-right">
+      <div class="btn-group">
+        <% if can?(:aprovar_pagamento, @participante) or can?(:aprovar_nota_empenho, @participante) or can?(:aprovar_isencao, @participante) and not @participante.confirmado? %>
+          <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Pagamento/Isenção <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+            <% if can? :aprovar_pagamento, @participante and !(@participante.confirmado?) %>
+              <li><%= link_to fa_icon('money') + " Aprovar pagamento", "javascript:void(0)", onclick: "aprovar_pagamento()" %></li>
+            <% end %>
+            <% if can? :aprovar_nota_empenho, @participante and !(@participante.confirmado?) %>
+              <li><%= link_to fa_icon('file-text-o') + " Aprovar nota de empenho", "javascript:void(0)", onclick: "aprovar_nota_empenho()" %></li>
+            <% end %>
+            <% if can? :aprovar_isencao, @participante and !(@participante.confirmado?) %>
+              <li><%= link_to fa_icon('thumbs-up') + " Aprovar isenção", "javascript:void(0)", onclick: "avaliar_isencao("+Participante::ISENCAO[:aprovado].to_s+")" %></li>
+              <li><%= link_to fa_icon('thumbs-down') + " Rejeitar isenção", "javascript:void(0)", onclick: "avaliar_isencao("+Participante::ISENCAO[:rejeitado].to_s+")" %></li>
+            <% end %>
+          </ul>
+        <% end %>
+        <% if can? :update, @participante %>
+          <%= link_to fa_icon('edit') + " Editar", edit_admin_participante_path(@participante), class: "btn btn-primary" %>
+        <% end %>
+        <% if can? :delete, @participante %>
+          <%= link_to fa_icon('trash') + " Excluir", admin_participante_path(@participante), class: "btn btn-primary", method: :delete, data: { confirm: 'Tem certeza que deseja excluir esse participante?' } %>
+        <% end %>
+        <% if can? :index, Participante %>
+          <%= link_to fa_icon('undo') + " Voltar", admin_participantes_path, class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render partial: 'participantes/detalhes' %>
+
+<hr>
+
+<h2><%= fa_icon 'file-text-o' %> Trabalhos</h2>
+
+<% if @participante.trabalhos.empty? %>
+  <p>Nenhum trabalho submetido até o momento.</p>
+<% else %>
+  <%= render partial: 'trabalhos' %>
+<% end %>
+
+<hr>
+
+<h2><%= fa_icon 'graduation-cap' %> Minicursos</h2>
+
+<%= render partial: 'admin/minicursos/table', locals: { minicursos: @participante.minicursos_propostos } %>
+
+<hr>
+
+<h2><%= fa_icon 'pencil' %> Inscrições</h2>
+
+<%= render partial: 'inscricoes', locals: { inscricoes: @participante.inscricoes } %>
+
+<hr>
+
+<h2><%= fa_icon 'certificate' %> Certificados</h2>
+
+<%= render partial: 'certificados/table', locals: { certificados: @participante.usuario.certificados } %>
+
+<hr>
+
+<% if can? :show, Pagamento %>
+  <h2><%= fa_icon 'usd' %> Pagamentos</h2>
+  <% if @participante.pagamentos.empty? %>
+    <p>Nenhum pagamento realizado até o momento.</p>
+  <% else %>
+    <%= render partial: 'pagamentos' %>
+  <% end %>
+<% end %>

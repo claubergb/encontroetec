@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>III SEMEAD</title>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <%= render partial: 'layouts/bootstrap' %>
+    <%= csrf_meta_tags %>
+    <%= render partial: "layouts/notify" %>
+    <script src="https://use.fontawesome.com/21136133a5.js"></script>
+    <%= yield :head %>
+  </head>
+  <body>
+    <% if current_user? %>
+      <%= render partial: "layouts/menu" %>
+    <% end %>
+    <div class="container content">
+      <%= yield %>
+    </div>
+    <%= yield :footer %>
+  </body>
+</html>

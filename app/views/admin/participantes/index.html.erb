@@ -1,0 +1,16 @@
+<%= content_for :head do %>
+  <%= render "layouts/datatables" %>
+<% end %>
+
+<div class="row">
+  <div class="col-md-6">
+    <h1><%= fa_icon 'users' %> Participantes</h1>
+  </div>
+</div>
+
+<% if @participantes.empty? %>
+  <p>Nenhum participante encontrado.</p>
+<% else %>
+  <%= render partial: 'admin/participantes/table', locals: { participantes: @participantes } %>
+  <p><%= @participantes.count %> participante(s) encontrado(s).</p>
+<% end %>

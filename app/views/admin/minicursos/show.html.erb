@@ -1,0 +1,90 @@
+<%= content_for :head do %>
+  <script type="text/javascript">
+    $(function() {
+      $("#inscricao_participante_id").select2({
+        theme: "bootstrap"
+      });
+    });
+  </script>
+<% end %>
+
+<div class="row">
+  <div class="col-md-6">
+    <h1><%= fa_icon 'graduation-cap' %> Minicurso</h1>
+  </div>
+  <div class="col-md-6">
+    <div class="btn-group pull-right">
+      <%= link_to fa_icon('undo') + " Voltar", admin_minicursos_path, class: "btn btn-primary" %>
+      <% if can? :certificar, @minicurso %>
+        <%= link_to fa_icon('certificate') + " Certificados", admin_minicurso_certificados_path(@minicurso), title: 'Certificados', class: 'btn btn-primary' %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<p><strong>Avaliação:</strong> <%= avaliacao_minicurso(@minicurso.avaliacao).html_safe %></p>
+
+<dl>
+  <dt>Título</dt>
+  <dd><%= @minicurso.titulo %></dd>
+  <dt>Ministrante</dt>
+  <dd><%= link_to @minicurso.participante.nome, admin_participante_path(@minicurso.participante) %></dd>
+  <dt>Justificativa</dt>
+  <dd><%= @minicurso.justificativa %></dd>
+  <dt>Objetivos</dt>
+  <dd><%= @minicurso.objetivos %></dd>
+  <dt>Metodologia</dt>
+  <dd><%= @minicurso.metodologia %></dd>
+  <dt>Programação</dt>
+  <dd><%= @minicurso.programacao %></dd>
+  <dt>Material necessário</dt>
+  <dd><%= @minicurso.material %></dd>
+  <dt>Referências</dt>
+  <dd><%= @minicurso.referencias %></dd>
+  <% if @minicurso.local.present? %>
+    <dt>Local</dt>
+    <dd><%= @minicurso.local %></dd>
+  <% end %>
+  <% if @minicurso.vagas.present? %>
+    <dt>Vagas</dt>
+    <dd><%= @minicurso.vagas %></dd>
+  <% end %>
+</dl>
+
+<h2><%= fa_icon 'pencil' %> Inscrições</h2>
+
+<% if @minicurso.inscricoes.empty? %>
+  <p>Nenhuma inscrição realizada para esse minicurso até o momento.</p>
+<% else %>
+  <table class="table table-bordered table-hover">
+    <thead>
+      <th>Nome</th>
+      <th>Emitir certificado?</th>
+      <th>Opções</th>
+    </thead>
+    <tbody>
+      <% @minicurso.inscricoes.each do |inscricao| %>
+        <tr>
+          <td><%= link_to inscricao.participante.nome, admin_participante_path(inscricao.participante) %></td>
+          <td><%= emitir_certificado?(inscricao) %></td>
+          <td>
+            <div class="btn-group">
+              <%= link_to fa_icon('trash'), admin_inscricao_path(inscricao), method: :delete, class: "btn btn-primary btn-sm", data: { confirm: 'Tem certeza que deseja excluir essa inscrição?' } %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <p><%= @minicurso.inscricoes.size %> participante(s) inscrito(s).</p>
+<% end %>
+
+<% if can? :avulsa, Inscricao %>
+  <h3><%= fa_icon 'plus' %> Nova Inscrição</h3>
+
+  <%= bootstrap_form_for @inscricao, url: admin_inscricoes_path do |f| %>
+    <%= f.select :participante_id, Participante.select(method: 'confirmados') %>
+    <%= f.hidden_field :minicurso_id, value: @minicurso.id %>
+    <%= f.submit 'Enviar' %>
+  <% end %>
+<% end %>
